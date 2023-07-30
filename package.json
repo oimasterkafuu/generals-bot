@@ -1,0 +1,11 @@
+{
+  "name": "generalsbot",
+  "version": "1.0.0",
+  "description": "A bot playing generals.io",
+  "main": "index.js",
+  "author": "oimasterkafuu",
+  "license": "MIT",
+  "dependencies": {
+    "selenium-webdriver": "^4.10.0"
+  }
+}
