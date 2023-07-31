@@ -197,16 +197,16 @@ const COLORS = [
       // find all the cells that can see enemy
       var cellsCanSeeEnemy = this.findAll((e) => {
         if (!this.map[e.x][e.y].isMine) return false;
-        // for (var dx = -1; dx <= 1; ++dx) {
-        //   for (var dy = -1; dy <= 1; ++dy) {
-        //     if (dx === 0 && dy === 0) continue;
-        //     var x = e.x + dx;
-        //     var y = e.y + dy;
-        //     if (x < 0 || x >= this.sizeN || y < 0 || y >= this.sizeM)
-        //     continue; if (this.map[x][y].isEnemy) return true;
-        //   }
-        // }
-        return true;
+        for (var dx = -1; dx <= 1; ++dx) {
+          for (var dy = -1; dy <= 1; ++dy) {
+            if (dx === 0 && dy === 0) continue;
+            var x = e.x + dx;
+            var y = e.y + dy;
+            if (x < 0 || x >= this.sizeN || y < 0 || y >= this.sizeM)
+            continue; if (this.map[x][y].isEnemy) return true;
+          }
+        }
+        return false;
       });
       // add the priority
       for (var cell of cellsCanSeeEnemy) {
@@ -218,7 +218,7 @@ const COLORS = [
             if (x < 0 || x >= this.sizeN || y < 0 || y >= this.sizeM) continue;
             var val;
             if (this.map[x][y].isEnemy) {
-              val = 1024;
+              val = 128;
             } else {
               val = -128;
             }
@@ -376,10 +376,11 @@ const COLORS = [
       var manhattan = Math.abs(from.x - to.x) + Math.abs(from.y - to.y);
       var army = this.map[from.x][from.y].army;
       if (explore && army < 0) army += 2;
-      if (explore && this.map[from.x][from.y].type === TYPE.FOG) army -= 2;
+      if (explore && this.map[from.x][from.y].type === TYPE.FOG) army -= 8;
       return manhattan + army / 8;
     }
     findPath(from, to, explore = false) {
+      // console.log('findPath function started');
       // use A* to find the path from `from` to `to`
       // need not to be the shortest, but should have enough army
       var open = [];
@@ -405,8 +406,8 @@ const COLORS = [
       // Loop until we find the destination
       while (open.length > 0) {
         // Find the node in the open list with the lowest fScore
-        var currentX, currentY, currentF = Infinity, currentInd = -1;
-        for (var i = 0; i < open.length; ++i) {
+        var currentX = open[0].x, currentY = open[0].y, currentF = fScore[open[0].x][open[0].y], currentInd = 0;
+        for (var i = 1; i < open.length; ++i) {
           var f = fScore[open[i].x][open[i].y];
           if (f < currentF) {
             currentX = open[i].x;
@@ -415,7 +416,6 @@ const COLORS = [
             currentInd = i;
           }
         }
-        // console.log(`currentX: ${currentX}, currentY: ${currentY}`);
         if (currentX === to.x && currentY === to.y) {
           // Reconstruct and return the path
           var path = [];
@@ -800,11 +800,11 @@ const COLORS = [
 
     await driver.wait(until.elementLocated(By.css('span.game-end-alert')));
     // console.log('game ended');
-    clearInterval(gameInterval);
     map.sendMessage('ggwp');
   } catch (e) {
     // console.log(e);
   } finally {
+    clearInterval(gameInterval);
     await driver.quit();
   }
 })();
